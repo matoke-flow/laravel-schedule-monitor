@@ -1,5 +1,5 @@
 {
-    "name": "matoke-flow/schedule_monitoring",
+    "name": "matoke-flow/laravel-schedule-monitor",
     "description": "Laravel Pulse card that list all scheduled tasks.",
     "license": "MIT",
     "type": "library",
