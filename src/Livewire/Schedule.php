@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Hari\Laravel\Pulse\Schedule\Livewire;
+namespace Flow\Laravel\Pulse\Schedule\Livewire;
 
 use function Safe\preg_replace;
 
