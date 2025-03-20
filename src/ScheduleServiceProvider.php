@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Hari\Laravel\Pulse\Schedule;
+namespace Flow\Laravel\Pulse\Schedule;
 
-use Hari\Laravel\Pulse\Schedule\Livewire\Schedule;
+use Flow\Laravel\Pulse\Schedule\Livewire\Schedule;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 use Livewire\LivewireManager;
