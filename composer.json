@@ -35,7 +35,7 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Hari\\Laravel\\Pulse\\Schedule\\": "src/"
+            "Flow\\Laravel\\Pulse\\Schedule\\": "src/"
         }
     },
     "config": {
