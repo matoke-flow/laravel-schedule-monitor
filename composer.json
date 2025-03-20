@@ -1,0 +1,59 @@
+{
+    "name": "matoke-flow/schedule_monitoring",
+    "description": "Laravel Pulse card that list all scheduled tasks.",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "pulse",
+        "laravel-pulse",
+        "laravel-pulse-schedule"
+    ],
+    "authors": [
+        {
+            "name": "Hari krishnan(Team Sakthi - Flow)",
+            "email": "hari.k@in.flowglobal.net"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "laravel/framework": "^10.21|^11.0",
+        "laravel/pulse": "^1.0@beta",
+        "thecodingmachine/safe": "^2.5"
+    },
+    "require-dev": {
+        "larastan/larastan": "^2.9",
+        "laravel/pint": "^1.10",
+        "orchestra/testbench": "^8.17",
+        "phpstan/extension-installer": "^1.3.1",
+        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "rector/rector": "^1.0",
+        "spaze/phpstan-disallowed-calls": "^3.1",
+        "thecodingmachine/phpstan-safe-rule": "^1.2"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Hari\\Laravel\\Pulse\\Schedule\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Flow\\Laravel\\Pulse\\Schedule\\ScheduleServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "analyse": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=4G",
+        "rector": "rector"
+    }
+}
