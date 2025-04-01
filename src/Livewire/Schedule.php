@@ -34,11 +34,11 @@ class Schedule extends Card
 
         $now = Carbon::now()->toDateString();
 
-        $events = collect($schedule->events())->map(function (Event $event): array {
+        $events = collect($schedule->events())->map(function (Event $event) use ($now): array {
 
             $command = $this->getCommand($event);
 
-            $taskresult = $this->getschedulerstatus($command);
+            $taskresult = $this->getschedulerstatus($command,$now);
 
             $timezone = new DateTimeZone(session('timezone')?? 'UTC');
 
@@ -49,13 +49,14 @@ class Schedule extends Card
                 'status' => $taskresult ? $taskresult->status : null,
                 'failed_at' => $taskresult ?  $taskresult->last_failed_at :null,
                 'reason' => $taskresult ? $taskresult->failedlog : null,
-                'date'       => $taskresult ? $taskresult->date : null,
+                'date'   => $taskresult ? $taskresult->date : null,
         ];
     })->filter(function ($event) use ($now) {
         
-        $istoday = isset($event['date']) && $event['date'] === $now;
-
-        $matchesCountry = ($this->selectedcountry === 'ALL') ? true : str_contains($event['command'], $this->selectedcountry);
+        $istoday = (isset($event['next_due']) && Carbon::parse($event['next_due'])->toDateString() === $now) 
+        || (isset($event['date']) && $event['date'] === $now);
+        $matchesCountry = ($this->selectedcountry === 'ALL')
+            ? true : str_contains($event['command'], $this->selectedcountry);
         return $istoday && $matchesCountry;
     });
 
@@ -147,7 +148,7 @@ class Schedule extends Card
             ->ceilSeconds($event->repeatSeconds); // @phpstan-ignore-line
     }
 
-    private function getschedulerstatus($command)
+    private function getschedulerstatus($command,$now)
     {
 
         $task = DB::table('monitored_scheduled_tasks')
@@ -156,17 +157,16 @@ class Schedule extends Card
                 ->first();
 
         $taskstatus = new \stdClass();
-        $taskstatus->status = 'Unknown';
+        $taskstatus->status = 'Pending';
         $taskstatus->failedlog = null;
         $taskstatus->last_failed_at = null;
-
+        $taskstatus->date = null;
         if(!empty($task)) {
             $startedDate = $task->last_started_at ? Carbon::parse($task->last_started_at)->toDateString() : null;
-            $finishedDate = $task->last_finished_at ? Carbon::parse($task->last_finished_at)->toDateString() : null;
+            // $finishedDate = $task->last_finished_at ? Carbon::parse($task->last_finished_at)->toDateString() : null;
             $failedDate = $task->last_failed_at ? Carbon::parse($task->last_failed_at)->toDateString() : null;
-    
             
-            if ($failedDate && ($failedDate === $startedDate || $failedDate === $finishedDate)) {
+            if ($failedDate && ($failedDate ===  $now)) {
                 $failedlog = DB::table('monitored_scheduled_task_log_items')
                     ->where('monitored_scheduled_task_id', $task->id)
                     ->where('type', 'failed')
@@ -186,7 +186,7 @@ class Schedule extends Card
 
                 }
             }
-            else {
+            else if ($startedDate && ($startedDate ===  $now)){
                 $taskstatus->status = 'Success';
                 $taskstatus->date = $startedDate;
 

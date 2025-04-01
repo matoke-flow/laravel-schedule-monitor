@@ -71,12 +71,12 @@
                             <x-pulse::td style="min-width: 120px;" class="text-center">{{ $event['next_due'] }}</x-pulse::td>
                             <x-pulse::td>{{ $event['expression'] }}</x-pulse::td>
                             <x-pulse::td>
-                                <span 
-                                    style="color: {{ $event['status'] === 'Failed' ? '#dc2626' : '#16a34a' }}; 
-                                        font-weight: bold; 
-                                        {{ $event['status'] === 'Failed' ? 'animation: pulse 1.5s infinite;' : '' }}">
-                                    {{ $event['status'] }}
-                                </span>
+                            <span 
+                                style="color: {{ $event['status'] === 'Failed' ? '#dc2626' : ($event['status'] === 'Pending' ? '#facc15' : '#16a34a') }}; 
+                                    font-weight: bold; 
+                                    {{ $event['status'] === 'Failed' ? 'animation: pulse 1.5s infinite;' : '' }}">
+                                {{ $event['status'] }}
+                            </span>
                             </x-pulse::td>
                             <x-pulse::td class="text-center" style="min-width: 100px;">
                                 {{ $event['failed_at'] ?? '-' }}
