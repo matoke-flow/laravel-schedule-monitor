@@ -32,6 +32,7 @@ class Schedule extends Card
     {
         $kernel->bootstrap();
 
+        $now = Carbon::now()->toDateString();
 
         $events = collect($schedule->events())->map(function (Event $event): array {
 
@@ -47,16 +48,16 @@ class Schedule extends Card
                 'next_due' => $this->getNextDueDateForEvent($event, $timezone),
                 'status' => $taskresult ? $taskresult->status : null,
                 'failed_at' => $taskresult ?  $taskresult->last_failed_at :null,
-                'reason' => $taskresult ? $taskresult->failedlog : null
-            ];
-        });
+                'reason' => $taskresult ? $taskresult->failedlog : null,
+                'date'       => $taskresult ? $taskresult->date : null,
+        ];
+    })->filter(function ($event) use ($now) {
+        
+        $istoday = isset($event['date']) && $event['date'] === $now;
 
-        // Filter the events based on the selected country
-        if ($this->selectedcountry !== 'ALL') {
-            $events = $events->filter(function ($event) {
-                return str_contains($event['command'], $this->selectedcountry);
-            });
-        }
+        $matchesCountry = ($this->selectedcountry === 'ALL') ? true : str_contains($event['command'], $this->selectedcountry);
+        return $istoday && $matchesCountry;
+    });
 
         return view('pulse-schedule::livewire.schedule', [
             'events' => $events,
@@ -155,9 +156,17 @@ class Schedule extends Card
                 ->first();
 
         $taskstatus = new \stdClass();
+        $taskstatus->status = 'Unknown';
+        $taskstatus->failedlog = null;
+        $taskstatus->last_failed_at = null;
 
         if(!empty($task)) {
-            if ($task->last_failed_at) {
+            $startedDate = $task->last_started_at ? Carbon::parse($task->last_started_at)->toDateString() : null;
+            $finishedDate = $task->last_finished_at ? Carbon::parse($task->last_finished_at)->toDateString() : null;
+            $failedDate = $task->last_failed_at ? Carbon::parse($task->last_failed_at)->toDateString() : null;
+    
+            
+            if ($failedDate && ($failedDate === $startedDate || $failedDate === $finishedDate)) {
                 $failedlog = DB::table('monitored_scheduled_task_log_items')
                     ->where('monitored_scheduled_task_id', $task->id)
                     ->where('type', 'failed')
@@ -166,18 +175,21 @@ class Schedule extends Card
                     ->first();
             
                 $taskstatus->status = 'Failed';
+                $taskstatus->date = $startedDate;
                 $taskstatus->last_failed_at = $task->last_failed_at;
                 if ($failedlog && $failedlog->meta) {
                     $failureMessage = json_decode($failedlog->meta, true);
                     $taskstatus->failedlog = $failureMessage['failure_message'] ?? 'No message';
                 } else {
                     $taskstatus->failedlog = 'Unknown'; 
+                    $taskstatus->date = $startedDate;
+
                 }
             }
             else {
                 $taskstatus->status = 'Success';
-                $taskstatus->failedlog = null;
-                $taskstatus->last_failed_at = null;
+                $taskstatus->date = $startedDate;
+
             }
             return $taskstatus;
         }
