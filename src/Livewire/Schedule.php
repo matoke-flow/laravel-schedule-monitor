@@ -40,7 +40,7 @@ class Schedule extends Card
 
             $taskresult = $this->getschedulerstatus($command,$now);
 
-            $timezone = new DateTimeZone(session('timezone')?? 'UTC');
+            $timezone = new DateTimeZone($event->timezone ?? 'UTC');
 
             return [
                 'command' => $command,
