@@ -20,7 +20,8 @@ use Laravel\Pulse\Livewire\Card;
 use Livewire\Attributes\Lazy;
 use ReflectionClass;
 use ReflectionFunction;
-use DB;
+use Illuminate\Support\Facades\DB; 
+use Illuminate\Support\Facades\Config;
 
 #[Lazy]
 class Schedule extends Card
@@ -150,7 +151,7 @@ class Schedule extends Card
 
     private function getschedulerstatus($command,$now)
     {
-
+	config::set('logging.default', 'null');
         $task = DB::table('monitored_scheduled_tasks')
                 ->where('name', $command)
                 ->select('id', 'last_started_at', 'last_finished_at', 'last_failed_at')
