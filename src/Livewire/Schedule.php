@@ -151,7 +151,7 @@ class Schedule extends Card
 
     private function getschedulerstatus($command,$now)
     {
-	config::set('logging.default', 'null');
+        config::set('logging.default', 'null');
         $task = DB::table('monitored_scheduled_tasks')
                 ->where('name', $command)
                 ->select('id', 'last_started_at', 'last_finished_at', 'last_failed_at')
@@ -164,10 +164,10 @@ class Schedule extends Card
         $taskstatus->date = null;
         if(!empty($task)) {
             $startedDate = $task->last_started_at ? Carbon::parse($task->last_started_at)->toDateString() : null;
-            // $finishedDate = $task->last_finished_at ? Carbon::parse($task->last_finished_at)->toDateString() : null;
-            $failedDate = $task->last_failed_at ? Carbon::parse($task->last_failed_at)->toDateString() : null;
+            $finishedDate = $task->last_finished_at ? Carbon::parse($task->last_finished_at) : null;
+            $failedDate = $task->last_failed_at ? Carbon::parse($task->last_failed_at) : null;
             
-            if ($failedDate && ($failedDate ===  $now)) {
+            if ($failedDate && ($failedDate->isSameDay($now) && $failedDate->greaterThan($finishedDate))) {
                 $failedlog = DB::table('monitored_scheduled_task_log_items')
                     ->where('monitored_scheduled_task_id', $task->id)
                     ->where('type', 'failed')
